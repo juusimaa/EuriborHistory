@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using Microsoft.VisualBasic.FileIO;
 using MvvmLight1.Model;
 using System;
 using System.Net;
@@ -76,6 +77,26 @@ namespace MvvmLight1.ViewModel
                 "2019.csv");
 
             _isDownloading = false;
+
+            ParseCsv();
+        }
+
+        private void ParseCsv()
+        {
+            using (TextFieldParser parser = new TextFieldParser("2019.csv"))
+            {
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
+                while (!parser.EndOfData)
+                {
+                    //Processing row
+                    string[] fields = parser.ReadFields();
+                    foreach (string field in fields)
+                    {
+                        //TODO: Process field
+                    }
+                }
+            }
         }
 
         ////public override void Cleanup()
