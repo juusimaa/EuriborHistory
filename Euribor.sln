@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvvmLight1", "MvvmLight1\MvvmLight1.csproj", "{58CEC8B9-0877-4231-89D3-F93104A61DCD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EuriborHistory", "EuriborHistory\EuriborHistory.csproj", "{58CEC8B9-0877-4231-89D3-F93104A61DCD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
