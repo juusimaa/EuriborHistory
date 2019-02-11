@@ -1,11 +1,17 @@
-﻿using EuriborHistory.Model;
+﻿//-----------------------------------------------------------------------
+// <copyright file="C:\Users\jouni\source\EuriborHistory\EuriborHistory\ViewModel\MainViewModel.cs" company="">
+//     Author: Jouni Uusimaa
+//     Copyright (c) . All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+using EuriborHistory.Model;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using LiveCharts;
 using LiveCharts.Wpf;
 using System.Collections.Generic;
-using System.Windows.Input;
 using System.Linq;
+using System.Windows.Input;
 
 namespace EuriborHistory.ViewModel
 {
@@ -19,24 +25,54 @@ namespace EuriborHistory.ViewModel
     {
         private readonly IDataService _dataService;
         private bool _isDownloading;
-        private List<DataItem> _data;
+        private string[] _labels;
 
         public SeriesCollection SeriesCollection { get; set; }
+
+        public string[] Labels
+        {
+            get => _labels;
+            set
+            {
+                _labels = value;
+                RaisePropertyChanged(nameof(Labels));
+            }
+        }
+
+        private double _maxYValue;
+        public double MaxYValue
+        {
+            get => _maxYValue;
+            set
+            {
+                _maxYValue = value;
+                RaisePropertyChanged(nameof(MaxYValue));
+            }
+        }
+
+        private double _minYValue;
+        public double MinYValue
+        {
+            get => _minYValue;
+            set
+            {
+                _minYValue = value;
+                RaisePropertyChanged(nameof(MinYValue));
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public MainViewModel(IDataService dataService)
         {
-            SeriesCollection = new SeriesCollection();                
+            SeriesCollection = new SeriesCollection();
             _dataService = dataService;
             DownloadCommand = new RelayCommand(ExecuteDownloadCommand, CanExecuteDownloadCommand);
         }
 
         private bool CanExecuteDownloadCommand()
-        {
-            return !_isDownloading;
-        }
+=> !_isDownloading;
 
         private void ExecuteDownloadCommand()
         {
@@ -59,14 +95,23 @@ namespace EuriborHistory.ViewModel
 
         private void PopulateSeries(List<DataItem> data)
         {
-            var lineSeries = new LineSeries { Values = new ChartValues<decimal>()};
+            if (!data.Any())
+            {
+                return;
+            }
+
+            var lineSeries = new LineSeries { Values = new ChartValues<decimal>(), Title = "1 week" };
+            Labels = data.Select(d => d.Date.ToShortDateString()).Distinct().ToArray();
 
             var oneWeekData = data.Where(d => d.Period == Enums.EuriborPeriod.OneWeek);
             var values = new ChartValues<decimal>(oneWeekData.Select(d => d.Value));
 
+            MaxYValue = (double)oneWeekData.Max(d => d.Value) + 0.001;
+            MinYValue = (double)oneWeekData.Min(d => d.Value) - 0.001;
+
             foreach (var item in values)
             {
-                lineSeries.Values.Add(item);    
+                lineSeries.Values.Add(item);
             }
 
             SeriesCollection.Add(lineSeries);

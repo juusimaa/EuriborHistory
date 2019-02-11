@@ -8,7 +8,7 @@
         mc:Ignorable="d ignore"
         Height="400"
         Width="800"
-        Title="MVVM Light Application"
+        Title="Euribor History"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
     
     <Window.Resources>
@@ -25,9 +25,17 @@
             <RowDefinition Height="30"/>          
         </Grid.RowDefinitions>
 
-        <wpf:CartesianChart Grid.Row="0" Series="{Binding SeriesCollection}"/>
+        <wpf:CartesianChart Grid.Row="0" Series="{Binding SeriesCollection}">
+            <wpf:CartesianChart.AxisX>
+                <wpf:Axis Labels="{Binding Labels}"/>
+            </wpf:CartesianChart.AxisX>
+            <wpf:CartesianChart.AxisY>
+                <wpf:Axis Title="Rate" LabelFormatter="{Binding Formatter}" MaxValue="{Binding MaxYValue}" 
+                          MinValue="{Binding MinYValues}"/>
+            </wpf:CartesianChart.AxisY>
+        </wpf:CartesianChart>
 
-        <Button Grid.Row="1" Content="Download" VerticalAlignment="Center" Width="100"
+            <Button Grid.Row="1" Content="Download" VerticalAlignment="Center" Width="100"
                 Command="{Binding DownloadCommand}"/>
 
     </Grid>

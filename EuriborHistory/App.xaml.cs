@@ -1,5 +1,11 @@
-﻿using System.Windows;
+﻿//-----------------------------------------------------------------------
+// <copyright file="C:\Users\jouni\source\EuriborHistory\EuriborHistory\App.xaml.cs" company="">
+//     Author: Jouni Uusimaa
+//     Copyright (c) . All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
 using GalaSoft.MvvmLight.Threading;
+using System.Windows;
 
 namespace EuriborHistory
 {
@@ -9,8 +15,6 @@ namespace EuriborHistory
     public partial class App : Application
     {
         static App()
-        {
-            DispatcherHelper.Initialize();
-        }
+=> DispatcherHelper.Initialize();
     }
 }

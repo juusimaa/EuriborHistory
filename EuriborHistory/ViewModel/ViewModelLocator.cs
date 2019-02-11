@@ -1,4 +1,10 @@
-﻿/*
+﻿//-----------------------------------------------------------------------
+// <copyright file="C:\Users\jouni\source\EuriborHistory\EuriborHistory\ViewModel\ViewModelLocator.cs" company="">
+//     Author: Jouni Uusimaa
+//     Copyright (c) . All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+/*
   In App.xaml:
   <Application.Resources>
       <vm:ViewModelLocatorTemplate xmlns:vm="clr-namespace:MvvmLight1.ViewModel"
@@ -48,12 +54,7 @@ namespace EuriborHistory.ViewModel
             "CA1822:MarkMembersAsStatic",
             Justification = "This non-static member is needed for data binding purposes.")]
         public MainViewModel Main
-        {
-            get
-            {
-                return ServiceLocator.Current.GetInstance<MainViewModel>();
-            }
-        }
+=> ServiceLocator.Current.GetInstance<MainViewModel>();
 
         /// <summary>
         /// Cleans up all the resources.

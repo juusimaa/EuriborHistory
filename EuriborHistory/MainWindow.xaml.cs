@@ -1,4 +1,10 @@
-﻿using EuriborHistory.ViewModel;
+﻿//-----------------------------------------------------------------------
+// <copyright file="C:\Users\jouni\source\EuriborHistory\EuriborHistory\MainWindow.xaml.cs" company="">
+//     Author: Jouni Uusimaa
+//     Copyright (c) . All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+using EuriborHistory.ViewModel;
 using System.Windows;
 
 namespace EuriborHistory

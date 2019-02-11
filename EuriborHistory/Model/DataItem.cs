@@ -1,4 +1,10 @@
-﻿using EuriborHistory.Enums;
+﻿//-----------------------------------------------------------------------
+// <copyright file="C:\Users\jouni\source\EuriborHistory\EuriborHistory\Model\DataItem.cs" company="">
+//     Author: Jouni Uusimaa
+//     Copyright (c) . All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+using EuriborHistory.Enums;
 using System;
 
 namespace EuriborHistory.Model

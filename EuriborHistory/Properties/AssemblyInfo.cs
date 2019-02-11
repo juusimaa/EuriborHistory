@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MvvmLight1")]
+[assembly: AssemblyTitle("Euribor History")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("MvvmLight1")]
+[assembly: AssemblyProduct("Euribor History")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyCopyright("Copyright ©  2019 Jouni Uusimaa")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
