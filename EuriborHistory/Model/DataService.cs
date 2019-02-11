@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MvvmLight1.Model
+namespace EuriborHistory.Model
 {
     public class DataService : IDataService
     {
@@ -8,7 +8,7 @@ namespace MvvmLight1.Model
         {
             // Use this to connect to the actual data service
 
-            var item = new DataItem("Welcome to MVVM Light");
+            var item = new DataItem();
             callback(item, null);
         }
     }

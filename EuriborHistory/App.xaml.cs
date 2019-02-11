@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using GalaSoft.MvvmLight.Threading;
 
-namespace MvvmLight1
+namespace EuriborHistory
 {
     /// <summary>
     /// Interaction logic for App.xaml

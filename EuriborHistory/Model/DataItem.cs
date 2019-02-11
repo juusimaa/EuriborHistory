@@ -1,16 +1,14 @@
-﻿namespace MvvmLight1.Model
+﻿using EuriborHistory.Enums;
+using System;
+
+namespace EuriborHistory.Model
 {
     public class DataItem
     {
-        public string Title
-        {
-            get;
-            private set;
-        }
+        public DateTime Date { get; set; }
 
-        public DataItem(string title)
-        {
-            Title = title;
-        }
+        public EuriborPeriod Period { get; set; }
+
+        public decimal Value { get; set; }
     }
 }

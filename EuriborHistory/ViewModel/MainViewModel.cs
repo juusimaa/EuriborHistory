@@ -1,12 +1,11 @@
-﻿using GalaSoft.MvvmLight;
+﻿using EuriborHistory.Model;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Microsoft.VisualBasic.FileIO;
-using MvvmLight1.Model;
-using System;
 using System.Net;
 using System.Windows.Input;
 
-namespace MvvmLight1.ViewModel
+namespace EuriborHistory.ViewModel
 {
     /// <summary>
     /// This class contains properties that the main View can data bind to.
@@ -18,29 +17,6 @@ namespace MvvmLight1.ViewModel
     {
         private readonly IDataService _dataService;
         private bool _isDownloading;
-
-        /// <summary>
-        /// The <see cref="WelcomeTitle" /> property's name.
-        /// </summary>
-        public const string WelcomeTitlePropertyName = "WelcomeTitle";
-
-        private string _welcomeTitle = string.Empty;
-
-        /// <summary>
-        /// Gets the WelcomeTitle property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public string WelcomeTitle
-        {
-            get
-            {
-                return _welcomeTitle;
-            }
-            set
-            {
-                Set(ref _welcomeTitle, value);
-            }
-        }
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -56,8 +32,6 @@ namespace MvvmLight1.ViewModel
                         // Report error here
                         return;
                     }
-
-                    WelcomeTitle = item.Title;
                 });
 
             DownloadCommand = new RelayCommand(ExecuteDownloadCommand, CanExecuteDownloadCommand);

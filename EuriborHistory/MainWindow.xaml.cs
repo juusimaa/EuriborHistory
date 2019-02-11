@@ -1,7 +1,7 @@
-﻿using System.Windows;
-using MvvmLight1.ViewModel;
+﻿using EuriborHistory.ViewModel;
+using System.Windows;
 
-namespace MvvmLight1
+namespace EuriborHistory
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

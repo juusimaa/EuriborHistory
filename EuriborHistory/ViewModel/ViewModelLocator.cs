@@ -9,12 +9,12 @@
   DataContext="{Binding Source={StaticResource Locator}, Path=ViewModelName}"
 */
 
+using EuriborHistory.Model;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
-using MvvmLight1.Model;
 
-namespace MvvmLight1.ViewModel
+namespace EuriborHistory.ViewModel
 {
     /// <summary>
     /// This class contains static references to all the view models in the

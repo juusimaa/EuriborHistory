@@ -1,7 +1,8 @@
-﻿using System;
-using MvvmLight1.Model;
+﻿using EuriborHistory.Model;
+using System;
 
-namespace MvvmLight1.Design
+
+namespace EuriborHistory.Design
 {
     public class DesignDataService : IDataService
     {
@@ -9,7 +10,7 @@ namespace MvvmLight1.Design
         {
             // Use this to create design time data
 
-            var item = new DataItem("Welcome to MVVM Light [design]");
+            var item = new DataItem();
             callback(item, null);
         }
     }
