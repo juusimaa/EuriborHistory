@@ -1,8 +1,6 @@
 ﻿using EuriborHistory.Model;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-using Microsoft.VisualBasic.FileIO;
-using System.Net;
 using System.Windows.Input;
 
 namespace EuriborHistory.ViewModel
@@ -24,6 +22,19 @@ namespace EuriborHistory.ViewModel
         public MainViewModel(IDataService dataService)
         {
             _dataService = dataService;
+            DownloadCommand = new RelayCommand(ExecuteDownloadCommand, CanExecuteDownloadCommand);
+        }
+
+        private bool CanExecuteDownloadCommand()
+        {
+            return !_isDownloading;
+        }
+
+        private void ExecuteDownloadCommand()
+        {
+            _isDownloading = true;
+            _dataService.LoadDataAsync();
+
             _dataService.GetData(
                 (item, error) =>
                 {
@@ -34,43 +45,7 @@ namespace EuriborHistory.ViewModel
                     }
                 });
 
-            DownloadCommand = new RelayCommand(ExecuteDownloadCommand, CanExecuteDownloadCommand);
-        }
-
-        private bool CanExecuteDownloadCommand()
-        {
-            return !_isDownloading;
-        }
-
-        private async void ExecuteDownloadCommand()
-        {
-            _isDownloading = true;
-            var webClient = new WebClient();
-
-            await webClient.DownloadFileTaskAsync(@"https://www.emmi-benchmarks.eu/assets/modules/rateisblue/file_processing/publication/processed/hist_EURIBOR_2019.csv",
-                "2019.csv");
-
             _isDownloading = false;
-
-            ParseCsv();
-        }
-
-        private void ParseCsv()
-        {
-            using (TextFieldParser parser = new TextFieldParser("2019.csv"))
-            {
-                parser.TextFieldType = FieldType.Delimited;
-                parser.SetDelimiters(",");
-                while (!parser.EndOfData)
-                {
-                    //Processing row
-                    string[] fields = parser.ReadFields();
-                    foreach (string field in fields)
-                    {
-                        //TODO: Process field
-                    }
-                }
-            }
         }
 
         ////public override void Cleanup()
