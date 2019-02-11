@@ -27,7 +27,7 @@
 
         <wpf:CartesianChart Grid.Row="0" Series="{Binding SeriesCollection}">
             <wpf:CartesianChart.AxisX>
-                <wpf:Axis Labels="{Binding Labels}"/>
+                <wpf:Axis Labels="{Binding Labels}" Title="Date"/>
             </wpf:CartesianChart.AxisX>
             <wpf:CartesianChart.AxisY>
                 <wpf:Axis Title="Rate" LabelFormatter="{Binding Formatter}" MaxValue="{Binding MaxYValue}" 

@@ -71,8 +71,7 @@ namespace EuriborHistory.ViewModel
             DownloadCommand = new RelayCommand(ExecuteDownloadCommand, CanExecuteDownloadCommand);
         }
 
-        private bool CanExecuteDownloadCommand()
-=> !_isDownloading;
+        private bool CanExecuteDownloadCommand() => !_isDownloading;
 
         private void ExecuteDownloadCommand()
         {
@@ -100,21 +99,49 @@ namespace EuriborHistory.ViewModel
                 return;
             }
 
-            var lineSeries = new LineSeries { Values = new ChartValues<decimal>(), Title = "1 week" };
+            var lineSeriesOneWeek = new LineSeries { Values = new ChartValues<decimal>(), Title = "1 week" };
+            var lineSeriesOneMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "1 month" };
+            var lineSeriesThreeMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "3 month" };
+            var lineSeriesSixMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "6 month" };
+            var lineSeriesTwelveMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "12 month" };
+
             Labels = data.Select(d => d.Date.ToShortDateString()).Distinct().ToArray();
 
             var oneWeekData = data.Where(d => d.Period == Enums.EuriborPeriod.OneWeek);
-            var values = new ChartValues<decimal>(oneWeekData.Select(d => d.Value));
+            var oneMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.OneMonth);
+            var threeMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.ThreeMonths);
+            var sixMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.SixMonths);
+            var twelveMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.TwelveMonths);
 
-            MaxYValue = (double)oneWeekData.Max(d => d.Value) + 0.001;
-            MinYValue = (double)oneWeekData.Min(d => d.Value) - 0.001;
+            MaxYValue = (double)data.Max(d => d.Value) + 0.001;
+            MinYValue = (double)data.Min(d => d.Value) - 0.001;
 
-            foreach (var item in values)
+            foreach (var item in oneWeekData.Select(d => d.Value))
             {
-                lineSeries.Values.Add(item);
+                lineSeriesOneWeek.Values.Add(item);
+            }
+            foreach (var item in oneMonthData.Select(d => d.Value))
+            {
+                lineSeriesOneMonth.Values.Add(item);
+            }
+            foreach (var item in threeMonthData.Select(d => d.Value))
+            {
+                lineSeriesThreeMonth.Values.Add(item);
+            }
+            foreach (var item in sixMonthData.Select(d => d.Value))
+            {
+                lineSeriesSixMonth.Values.Add(item);
+            }
+            foreach (var item in twelveMonthData.Select(d => d.Value))
+            {
+                lineSeriesTwelveMonth.Values.Add(item);
             }
 
-            SeriesCollection.Add(lineSeries);
+            SeriesCollection.Add(lineSeriesOneWeek);
+            SeriesCollection.Add(lineSeriesOneMonth);
+            SeriesCollection.Add(lineSeriesThreeMonth);
+            SeriesCollection.Add(lineSeriesSixMonth);
+            SeriesCollection.Add(lineSeriesTwelveMonth);
         }
 
         ////public override void Cleanup()
