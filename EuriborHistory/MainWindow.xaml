@@ -3,9 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ignore="http://www.galasoft.ch/ignore"
-        xmlns:wpf="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        mc:Ignorable="d ignore"
+        xmlns:oxy="http://oxyplot.org/wpf"
         Height="400"
         Width="800"
         Title="Euribor History"
@@ -25,14 +23,7 @@
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
 
-        <wpf:CartesianChart x:Name="EuriborChart" Grid.Row="0" Series="{Binding SeriesCollection}" LegendLocation="Right" Hoverable="False" >
-            <wpf:CartesianChart.AxisX>
-                <wpf:Axis x:Name="EuriborXAxis" Title="Date" LabelFormatter="{Binding Formatter}"/>
-            </wpf:CartesianChart.AxisX>
-            <wpf:CartesianChart.AxisY>
-                <wpf:Axis Title="Rate"/>
-            </wpf:CartesianChart.AxisY>
-        </wpf:CartesianChart>
+        <oxy:PlotView Grid.Row="0" Model="{Binding Model}"/>
 
         <Button Grid.Row="1" Content="Download" VerticalAlignment="Center" Width="100"
                 Command="{Binding DownloadCommand}"/>

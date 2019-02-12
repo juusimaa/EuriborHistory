@@ -7,9 +7,9 @@
 using EuriborHistory.Model;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-using LiveCharts;
-using LiveCharts.Configurations;
-using LiveCharts.Wpf;
+using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,8 +27,6 @@ namespace EuriborHistory.ViewModel
     {
         private readonly IDataService _dataService;
         private bool _isDownloading;
-
-        public SeriesCollection SeriesCollection { get; set; }
 
         private double _maxYValue;
         public double MaxYValue
@@ -52,14 +50,14 @@ namespace EuriborHistory.ViewModel
             }
         }
 
-        Func<double, string> _formatter;
-        public Func<double, string> Formatter
+        private PlotModel _model;
+        public PlotModel Model
         {
-            get => _formatter;
+            get => _model;
             set
             {
-                _formatter = value;
-                RaisePropertyChanged(nameof(Formatter));
+                _model = value;
+                RaisePropertyChanged(nameof(Model));
             }
         }
 
@@ -67,11 +65,19 @@ namespace EuriborHistory.ViewModel
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public MainViewModel(IDataService dataService)
-        {            
-            var dayConfig = Mappers.Xy<DataItem>()
-                .X(model => (double)model.Date.Ticks / TimeSpan.FromHours(1).Ticks)
-                .Y(model => model.Value);
-            SeriesCollection = new SeriesCollection(dayConfig);
+        {
+            Model = new PlotModel
+            {
+                PlotAreaBorderThickness = new OxyThickness(0, 0, 0, 0),
+                Title = "Euribor 2015-2019",
+                LegendOrientation = LegendOrientation.Vertical,
+                LegendPlacement = LegendPlacement.Inside,
+                LegendPosition = LegendPosition.TopRight,
+                LegendBackground = OxyColor.FromAColor(0, OxyColors.Transparent),
+                LegendTitle = "Years",
+                LegendBorder = OxyColors.Transparent
+            };
+            SetupPlotModel();
             _dataService = dataService;
             DownloadCommand = new RelayCommand(ExecuteDownloadCommand, CanExecuteDownloadCommand);
         }
@@ -81,7 +87,7 @@ namespace EuriborHistory.ViewModel
         private async void ExecuteDownloadCommand()
         {
             _isDownloading = true;
-            SeriesCollection.Clear();
+            Model.Series.Clear();
 
             await _dataService.LoadDataAsync();
 
@@ -99,18 +105,35 @@ namespace EuriborHistory.ViewModel
             _isDownloading = false;
         }
 
+        private void SetupPlotModel()
+        {
+            var dateAxis = new DateTimeAxis
+            {
+                Position = AxisPosition.Bottom,
+                StringFormat = "MM/dd/yyyy",
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Dot,
+                Title = "Date"
+            };
+            var valueAxis = new LinearAxis
+            {
+                Position = AxisPosition.Left,
+                Title = "Rate"
+            };
+
+            Model.Axes.Add(dateAxis);
+            Model.Axes.Add(valueAxis);
+        }
+
         private void PopulateSeries(List<DataItem> data)
         {
             if (!data.Any())
             {
                 return;
-            }            
+            }
 
-            var lineSeriesOneWeek = new LineSeries { Title = "1 week", LineSmoothness = 1, PointGeometry = null };
-            var lineSeriesOneMonth = new LineSeries { Title = "1 month", LineSmoothness = 1, PointGeometry = null };
-            var lineSeriesThreeMonth = new LineSeries { Title = "3 month", LineSmoothness = 1, PointGeometry = null };
-            var lineSeriesSixMonth = new LineSeries { Title = "6 month", LineSmoothness = 1, PointGeometry = null };
-            var lineSeriesTwelveMonth = new LineSeries { Title = "12 month", LineSmoothness = 1, PointGeometry = null };
+            var minDate = data.Min(d => d.Date);
+            var maxDate = data.Max(d => d.Date);
 
             var oneWeekData = data.Where(d => d.Period == Enums.EuriborPeriod.OneWeek);
             var oneMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.OneMonth);
@@ -121,33 +144,39 @@ namespace EuriborHistory.ViewModel
             MaxYValue = Math.Round(data.Where(d => !double.IsNaN(d.Value)).Max(v => v.Value) + 0.1, 1);
             MinYValue = Math.Round(data.Where(d => !double.IsNaN(d.Value)).Min(v => v.Value) - 0.1, 1);
 
-            var values1w = new ChartValues<DataItem>();
-            values1w.AddRange(oneWeekData);
-            lineSeriesOneWeek.Values = values1w;
+            var lineSeries1w = new LineSeries { Title = "1 week"};
+            var lineSeries1m = new LineSeries { Title = "1 month"};
+            var lineSeries3m = new LineSeries { Title = "3 months"};
+            var lineSeries6m = new LineSeries { Title = "6 months"};
+            var lineSeries12m = new LineSeries { Title = "12 months"};
 
-            var values1m = new ChartValues<DataItem>();
-            values1m.AddRange(oneMonthData);
-            lineSeriesOneMonth.Values = values1m;
+            foreach (var item in oneWeekData)
+            {
+                lineSeries1w.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
+            }
+            foreach (var item in oneMonthData)
+            {
+                lineSeries1m.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
+            }
+            foreach (var item in threeMonthData)
+            {
+                lineSeries3m.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
+            }
+            foreach (var item in sixMonthData)
+            {
+                lineSeries6m.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
+            }
+            foreach (var item in twelveMonthData)
+            {
+                lineSeries12m.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
+            }
 
-            var values3m = new ChartValues<DataItem>();
-            values3m.AddRange(threeMonthData);
-            lineSeriesThreeMonth.Values = values3m;
-
-            var values6m = new ChartValues<DataItem>();
-            values6m.AddRange(sixMonthData);
-            lineSeriesSixMonth.Values = values6m;
-
-            var values12m = new ChartValues<DataItem>();
-            values12m.AddRange(twelveMonthData);
-            lineSeriesTwelveMonth.Values = values12m;
-
-            SeriesCollection.Add(lineSeriesOneWeek);
-            SeriesCollection.Add(lineSeriesOneMonth);
-            SeriesCollection.Add(lineSeriesThreeMonth);
-            SeriesCollection.Add(lineSeriesSixMonth);
-            SeriesCollection.Add(lineSeriesTwelveMonth);
-
-            Formatter = value => new DateTime((long)(value * TimeSpan.FromHours(1).Ticks)).ToShortDateString();
+            Model.Series.Add(lineSeries1w);
+            Model.Series.Add(lineSeries1m);
+            Model.Series.Add(lineSeries3m);
+            Model.Series.Add(lineSeries6m);
+            Model.Series.Add(lineSeries12m);
+            Model.InvalidatePlot(true);
         }
 
         ////public override void Cleanup()
