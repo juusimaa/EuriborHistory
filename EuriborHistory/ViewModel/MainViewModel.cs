@@ -8,10 +8,11 @@ using EuriborHistory.Model;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using LiveCharts;
+using LiveCharts.Configurations;
 using LiveCharts.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace EuriborHistory.ViewModel
@@ -26,19 +27,8 @@ namespace EuriborHistory.ViewModel
     {
         private readonly IDataService _dataService;
         private bool _isDownloading;
-        private string[] _labels;
 
         public SeriesCollection SeriesCollection { get; set; }
-
-        public string[] Labels
-        {
-            get => _labels;
-            set
-            {
-                _labels = value;
-                RaisePropertyChanged(nameof(Labels));
-            }
-        }
 
         private double _maxYValue;
         public double MaxYValue
@@ -62,12 +52,26 @@ namespace EuriborHistory.ViewModel
             }
         }
 
+        Func<double, string> _formatter;
+        public Func<double, string> Formatter
+        {
+            get => _formatter;
+            set
+            {
+                _formatter = value;
+                RaisePropertyChanged(nameof(Formatter));
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public MainViewModel(IDataService dataService)
-        {
-            SeriesCollection = new SeriesCollection();
+        {            
+            var dayConfig = Mappers.Xy<DataItem>()
+                .X(model => (double)model.Date.Ticks / TimeSpan.FromHours(1).Ticks)
+                .Y(model => model.Value);
+            SeriesCollection = new SeriesCollection(dayConfig);
             _dataService = dataService;
             DownloadCommand = new RelayCommand(ExecuteDownloadCommand, CanExecuteDownloadCommand);
         }
@@ -97,18 +101,16 @@ namespace EuriborHistory.ViewModel
 
         private void PopulateSeries(List<DataItem> data)
         {
-            if(!data.Any())
+            if (!data.Any())
             {
                 return;
-            }
+            }            
 
             var lineSeriesOneWeek = new LineSeries { Title = "1 week", LineSmoothness = 1, PointGeometry = null };
             var lineSeriesOneMonth = new LineSeries { Title = "1 month", LineSmoothness = 1, PointGeometry = null };
-            var lineSeriesThreeMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "3 month" };
-            var lineSeriesSixMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "6 month" };
-            var lineSeriesTwelveMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "12 month" };
-
-            Labels = data.Select(d => d.Date.ToShortDateString()).Distinct().ToArray();
+            var lineSeriesThreeMonth = new LineSeries { Title = "3 month", LineSmoothness = 1, PointGeometry = null };
+            var lineSeriesSixMonth = new LineSeries { Title = "6 month", LineSmoothness = 1, PointGeometry = null };
+            var lineSeriesTwelveMonth = new LineSeries { Title = "12 month", LineSmoothness = 1, PointGeometry = null };
 
             var oneWeekData = data.Where(d => d.Period == Enums.EuriborPeriod.OneWeek);
             var oneMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.OneMonth);
@@ -116,39 +118,36 @@ namespace EuriborHistory.ViewModel
             var sixMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.SixMonths);
             var twelveMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.TwelveMonths);
 
-            MaxYValue = (double)data.Max(d => d.Value) + 0.001;
-            MinYValue = (double)data.Min(d => d.Value) - 0.001;
+            MaxYValue = Math.Round(data.Where(d => !double.IsNaN(d.Value)).Max(v => v.Value) + 0.1, 1);
+            MinYValue = Math.Round(data.Where(d => !double.IsNaN(d.Value)).Min(v => v.Value) - 0.1, 1);
 
-            var values1w = new ChartValues<double>();
-            values1w.AddRange(oneWeekData.Select(d => d.Value));
+            var values1w = new ChartValues<DataItem>();
+            values1w.AddRange(oneWeekData);
             lineSeriesOneWeek.Values = values1w;
 
-            var values1m = new ChartValues<double>();
-            values1m.AddRange(oneMonthData.Select(d => d.Value));
+            var values1m = new ChartValues<DataItem>();
+            values1m.AddRange(oneMonthData);
             lineSeriesOneMonth.Values = values1m;
 
-            //foreach (var item in oneMonthData.Select(d => d.Value))
-            //{
-            //    lineSeriesOneMonth.Values.Add(item);
-            //}
-            //foreach (var item in threeMonthData.Select(d => d.Value))
-            //{
-            //    lineSeriesThreeMonth.Values.Add(item);
-            //}
-            //foreach (var item in sixMonthData.Select(d => d.Value))
-            //{
-            //    lineSeriesSixMonth.Values.Add(item);
-            //}
-            //foreach (var item in twelveMonthData.Select(d => d.Value))
-            //{
-            //    lineSeriesTwelveMonth.Values.Add(item);
-            //}
+            var values3m = new ChartValues<DataItem>();
+            values3m.AddRange(threeMonthData);
+            lineSeriesThreeMonth.Values = values3m;
+
+            var values6m = new ChartValues<DataItem>();
+            values6m.AddRange(sixMonthData);
+            lineSeriesSixMonth.Values = values6m;
+
+            var values12m = new ChartValues<DataItem>();
+            values12m.AddRange(twelveMonthData);
+            lineSeriesTwelveMonth.Values = values12m;
 
             SeriesCollection.Add(lineSeriesOneWeek);
             SeriesCollection.Add(lineSeriesOneMonth);
             SeriesCollection.Add(lineSeriesThreeMonth);
             SeriesCollection.Add(lineSeriesSixMonth);
             SeriesCollection.Add(lineSeriesTwelveMonth);
+
+            Formatter = value => new DateTime((long)(value * TimeSpan.FromHours(1).Ticks)).ToShortDateString();
         }
 
         ////public override void Cleanup()

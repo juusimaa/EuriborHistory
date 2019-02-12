@@ -89,20 +89,20 @@ namespace EuriborHistory.Model
                             case EuriborPeriod.OneMonth:
                                 _data.AddRange(ParseData(dates, set, EuriborPeriod.OneMonth));
                                 break;
+
+                            case EuriborPeriod.ThreeMonths:
+                                _data.AddRange(ParseData(dates, set, EuriborPeriod.ThreeMonths));
+                                break;
+
+                            case EuriborPeriod.SixMonths:
+                                _data.AddRange(ParseData(dates, set, EuriborPeriod.SixMonths));
+                                break;
+
+                            case EuriborPeriod.TwelveMonths:
+                                _data.AddRange(ParseData(dates, set, EuriborPeriod.TwelveMonths));
+                                break;
                         }
                     }
-
-                    //var oneWeekData = parser.ReadFields();
-                    //var oneMonthData = parser.ReadFields();
-                    //var threeMonthData = parser.ReadFields();
-                    //var sixMonthData = parser.ReadFields();
-                    //var twelveMonthData = parser.ReadFields();
-
-                    //_data.AddRange(ParseData(dates, oneWeekData, EuriborPeriod.OneWeek));
-                    //_data.AddRange(ParseData(dates, oneMonthData, EuriborPeriod.OneMonth));
-                    //_data.AddRange(ParseData(dates, threeMonthData, EuriborPeriod.ThreeMonths));
-                    //_data.AddRange(ParseData(dates, sixMonthData, EuriborPeriod.SixMonths));
-                    //_data.AddRange(ParseData(dates, twelveMonthData, EuriborPeriod.TwelveMonths));
                 }
             });
         }
@@ -116,6 +116,18 @@ namespace EuriborHistory.Model
             if (str.StartsWith("1m"))
             {
                 return EuriborPeriod.OneMonth;
+            }
+            if (str.StartsWith("3m"))
+            {
+                return EuriborPeriod.ThreeMonths;
+            }
+            if (str.StartsWith("6m"))
+            {
+                return EuriborPeriod.SixMonths;
+            }
+            if (str.StartsWith("12m"))
+            {
+                return EuriborPeriod.TwelveMonths;
             }
 
             return EuriborPeriod.NotDefined;
