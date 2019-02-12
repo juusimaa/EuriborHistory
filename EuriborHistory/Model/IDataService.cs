@@ -15,5 +15,13 @@ namespace EuriborHistory.Model
         void GetData(Action<List<DataItem>, Exception> callback);
 
         Task LoadDataAsync();
+
+        double GetMinValue();
+
+        double GetMaxValue();
+
+        DateTime GetMinDate();
+
+        DateTime GetMaxDate();
     }
 }

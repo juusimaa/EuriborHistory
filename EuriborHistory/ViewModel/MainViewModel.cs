@@ -69,7 +69,7 @@ namespace EuriborHistory.ViewModel
             Model = new PlotModel
             {
                 PlotAreaBorderThickness = new OxyThickness(0, 0, 0, 0),
-                Title = "Euribor 2015-2019",
+                Title = "Euribor",
                 LegendOrientation = LegendOrientation.Vertical,
                 LegendPlacement = LegendPlacement.Inside,
                 LegendPosition = LegendPosition.TopRight,
@@ -132,17 +132,11 @@ namespace EuriborHistory.ViewModel
                 return;
             }
 
-            var minDate = data.Min(d => d.Date);
-            var maxDate = data.Max(d => d.Date);
-
             var oneWeekData = data.Where(d => d.Period == Enums.EuriborPeriod.OneWeek);
             var oneMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.OneMonth);
             var threeMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.ThreeMonths);
             var sixMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.SixMonths);
             var twelveMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.TwelveMonths);
-
-            MaxYValue = Math.Round(data.Where(d => !double.IsNaN(d.Value)).Max(v => v.Value) + 0.1, 1);
-            MinYValue = Math.Round(data.Where(d => !double.IsNaN(d.Value)).Min(v => v.Value) - 0.1, 1);
 
             var lineSeries1w = new LineSeries { Title = "1 week"};
             var lineSeries1m = new LineSeries { Title = "1 month"};
@@ -176,6 +170,9 @@ namespace EuriborHistory.ViewModel
             Model.Series.Add(lineSeries3m);
             Model.Series.Add(lineSeries6m);
             Model.Series.Add(lineSeries12m);
+
+            Model.Title = $"Euribor {_dataService.GetMinDate().Year} - {_dataService.GetMaxDate().Year}";
+
             Model.InvalidatePlot(true);
         }
 

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -23,11 +24,18 @@ namespace EuriborHistory.Model
         private string _downloadPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString() +
             "\\Euribor History";
         private const string _urlBase = @"https://www.emmi-benchmarks.eu/assets/modules/rateisblue/file_processing/publication/processed/hist_EURIBOR_";
-        private const string _filename2019 = "2019.csv";
-        private const string _filename2018 = "2018.csv";
-        private const string _filename2017 = "2017.csv";
-        private const string _filename2016 = "2016.csv";
-        private const string _filename2015 = "2015.csv";
+        private readonly string[] _fileNames =
+        {
+            "2011.csv",
+            "2012.csv",
+            "2013.csv",
+            "2014.csv",
+            "2015.csv",
+            "2016.csv",
+            "2017.csv",
+            "2018.csv",
+            "2019.csv"
+        };
 
         public void GetData(Action<List<DataItem>, Exception> callback) => callback(_data, null);
 
@@ -42,17 +50,11 @@ namespace EuriborHistory.Model
                 Directory.CreateDirectory(_downloadPath);
             }
 
-            await DownloadFile(_filename2019);
-            await DownloadFile(_filename2018);
-            await DownloadFile(_filename2017);
-            await DownloadFile(_filename2016);
-            await DownloadFile(_filename2015);
-
-            await ParseCsv(Path.Combine(_downloadPath, _filename2015));
-            await ParseCsv(Path.Combine(_downloadPath, _filename2016));
-            await ParseCsv(Path.Combine(_downloadPath, _filename2017));
-            await ParseCsv(Path.Combine(_downloadPath, _filename2018));
-            await ParseCsv(Path.Combine(_downloadPath, _filename2019));
+            foreach (var filename in _fileNames)
+            {
+                await DownloadFile(filename);
+                await ParseCsv(Path.Combine(_downloadPath, filename));
+            }
         }
 
         private async Task DownloadFile(string filename)
@@ -140,11 +142,13 @@ namespace EuriborHistory.Model
             // 1st item is empty or period name so start from index 1
             for(var i = 1; i < dates.Length; i++)
             {
-                var item = new DataItem
+                var item = new DataItem { Period = period };
+
+                if (DateTime.TryParse(dates[i], out var date))
                 {
-                    Date = DateTime.Parse(dates[i]),
-                    Period = period
-                };
+                    item.Date = date;
+                }
+
                 if(double.TryParse(values[i], NumberStyles.Any, CultureInfo.InvariantCulture, out var d))
                 {
                     if(d == 0) d = double.NaN;
@@ -154,6 +158,26 @@ namespace EuriborHistory.Model
             }
 
             return results;
+        }
+
+        public double GetMinValue()
+        {
+            return Math.Round(_data.Where(d => !double.IsNaN(d.Value)).Min(v => v.Value) - 0.1, 1);
+        }
+
+        public double GetMaxValue()
+        {
+            return Math.Round(_data.Where(d => !double.IsNaN(d.Value)).Max(v => v.Value) + 0.1, 1);
+        }
+
+        public DateTime GetMinDate()
+        {
+            return _data.Min(d => d.Date);
+        }
+
+        public DateTime GetMaxDate()
+        {
+            return _data.Max(d => d.Date);
         }
     }
 }

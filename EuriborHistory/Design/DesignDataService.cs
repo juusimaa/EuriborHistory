@@ -21,6 +21,26 @@ namespace EuriborHistory.Design
             callback(item, null);
         }
 
+        public DateTime GetMaxDate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public double GetMaxValue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public DateTime GetMinDate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public double GetMinValue()
+        {
+            throw new NotImplementedException();
+        }
+
         public Task LoadDataAsync() => throw new NotImplementedException();
     }
 }
