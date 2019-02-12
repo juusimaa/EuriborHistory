@@ -25,7 +25,7 @@
             <RowDefinition Height="30"/>          
         </Grid.RowDefinitions>
 
-        <wpf:CartesianChart Grid.Row="0" Series="{Binding SeriesCollection}">
+        <wpf:CartesianChart Grid.Row="0" Series="{Binding SeriesCollection}" LegendLocation="Right" >
             <wpf:CartesianChart.AxisX>
                 <wpf:Axis Labels="{Binding Labels}" Title="Date"/>
             </wpf:CartesianChart.AxisX>

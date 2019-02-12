@@ -11,6 +11,7 @@ using LiveCharts;
 using LiveCharts.Wpf;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace EuriborHistory.ViewModel
@@ -73,10 +74,12 @@ namespace EuriborHistory.ViewModel
 
         private bool CanExecuteDownloadCommand() => !_isDownloading;
 
-        private void ExecuteDownloadCommand()
+        private async void ExecuteDownloadCommand()
         {
             _isDownloading = true;
-            _dataService.LoadDataAsync();
+            SeriesCollection.Clear();
+
+            await _dataService.LoadDataAsync();
 
             _dataService.GetData(
                 (item, error) =>
@@ -94,13 +97,13 @@ namespace EuriborHistory.ViewModel
 
         private void PopulateSeries(List<DataItem> data)
         {
-            if (!data.Any())
+            if(!data.Any())
             {
                 return;
             }
 
-            var lineSeriesOneWeek = new LineSeries { Values = new ChartValues<decimal>(), Title = "1 week" };
-            var lineSeriesOneMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "1 month" };
+            var lineSeriesOneWeek = new LineSeries { Title = "1 week", LineSmoothness = 1, PointGeometry = null };
+            var lineSeriesOneMonth = new LineSeries { Title = "1 month", LineSmoothness = 1, PointGeometry = null };
             var lineSeriesThreeMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "3 month" };
             var lineSeriesSixMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "6 month" };
             var lineSeriesTwelveMonth = new LineSeries { Values = new ChartValues<decimal>(), Title = "12 month" };
@@ -116,26 +119,30 @@ namespace EuriborHistory.ViewModel
             MaxYValue = (double)data.Max(d => d.Value) + 0.001;
             MinYValue = (double)data.Min(d => d.Value) - 0.001;
 
-            foreach (var item in oneWeekData.Select(d => d.Value))
-            {
-                lineSeriesOneWeek.Values.Add(item);
-            }
-            foreach (var item in oneMonthData.Select(d => d.Value))
-            {
-                lineSeriesOneMonth.Values.Add(item);
-            }
-            foreach (var item in threeMonthData.Select(d => d.Value))
-            {
-                lineSeriesThreeMonth.Values.Add(item);
-            }
-            foreach (var item in sixMonthData.Select(d => d.Value))
-            {
-                lineSeriesSixMonth.Values.Add(item);
-            }
-            foreach (var item in twelveMonthData.Select(d => d.Value))
-            {
-                lineSeriesTwelveMonth.Values.Add(item);
-            }
+            var values1w = new ChartValues<double>();
+            values1w.AddRange(oneWeekData.Select(d => d.Value));
+            lineSeriesOneWeek.Values = values1w;
+
+            var values1m = new ChartValues<double>();
+            values1m.AddRange(oneMonthData.Select(d => d.Value));
+            lineSeriesOneMonth.Values = values1m;
+
+            //foreach (var item in oneMonthData.Select(d => d.Value))
+            //{
+            //    lineSeriesOneMonth.Values.Add(item);
+            //}
+            //foreach (var item in threeMonthData.Select(d => d.Value))
+            //{
+            //    lineSeriesThreeMonth.Values.Add(item);
+            //}
+            //foreach (var item in sixMonthData.Select(d => d.Value))
+            //{
+            //    lineSeriesSixMonth.Values.Add(item);
+            //}
+            //foreach (var item in twelveMonthData.Select(d => d.Value))
+            //{
+            //    lineSeriesTwelveMonth.Values.Add(item);
+            //}
 
             SeriesCollection.Add(lineSeriesOneWeek);
             SeriesCollection.Add(lineSeriesOneMonth);

@@ -8,6 +8,7 @@ namespace EuriborHistory.Enums
 {
     public enum EuriborPeriod
     {
+        NotDefined,
         OneWeek,
         OneMonth,
         ThreeMonths,

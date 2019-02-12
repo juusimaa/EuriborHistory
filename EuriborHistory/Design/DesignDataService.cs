@@ -7,6 +7,7 @@
 using EuriborHistory.Model;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EuriborHistory.Design
 {
@@ -20,8 +21,6 @@ namespace EuriborHistory.Design
             callback(item, null);
         }
 
-        public void LoadDataAsync()
-=>            // TODO
-            throw new NotImplementedException();
+        public Task LoadDataAsync() => throw new NotImplementedException();
     }
 }

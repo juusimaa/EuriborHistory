@@ -15,6 +15,6 @@ namespace EuriborHistory.Model
 
         public EuriborPeriod Period { get; set; }
 
-        public decimal Value { get; set; }
+        public double Value { get; set; }
     }
 }
