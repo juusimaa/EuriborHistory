@@ -179,5 +179,19 @@ namespace EuriborHistory.Model
         {
             return _data.Max(d => d.Date);
         }
+
+        public double GetMinValue(DateTime startDate, DateTime endDate)
+        {
+            return _data
+                .Where(d => d.Date > startDate && d.Date < endDate)
+                .Min(d => d.Value);
+        }
+
+        public double GetMaxValue(DateTime startDate, DateTime endDate)
+        {
+            return _data
+                .Where(d => d.Date > startDate && d.Date < endDate)
+                .Max(d => d.Value);
+        }
     }
 }

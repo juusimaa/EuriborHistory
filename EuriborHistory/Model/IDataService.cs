@@ -23,5 +23,9 @@ namespace EuriborHistory.Model
         DateTime GetMinDate();
 
         DateTime GetMaxDate();
+
+        double GetMinValue(DateTime startDate, DateTime endDate);
+
+        double GetMaxValue(DateTime startDate, DateTime endDate);
     }
 }

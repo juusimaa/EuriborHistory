@@ -26,40 +26,11 @@ namespace EuriborHistory.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
-        private bool _isDownloading;
-
+        private DateTime _maxDate;
         private double _maxYValue;
-        public double MaxYValue
-        {
-            get => _maxYValue;
-            set
-            {
-                _maxYValue = value;
-                RaisePropertyChanged(nameof(MaxYValue));
-            }
-        }
-
+        private DateTime _minDate;
         private double _minYValue;
-        public double MinYValue
-        {
-            get => _minYValue;
-            set
-            {
-                _minYValue = value;
-                RaisePropertyChanged(nameof(MinYValue));
-            }
-        }
-
         private PlotModel _model;
-        public PlotModel Model
-        {
-            get => _model;
-            set
-            {
-                _model = value;
-                RaisePropertyChanged(nameof(Model));
-            }
-        }
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -79,14 +50,51 @@ namespace EuriborHistory.ViewModel
             };
             SetupPlotModel();
             _dataService = dataService;
-            DownloadCommand = new RelayCommand(ExecuteDownloadCommand, CanExecuteDownloadCommand);
+
+            LastWeekCommand = new RelayCommand(ExecuteLastWeekCommand, CanExecuteDownloadCommand);
+            LastMonthCommand = new RelayCommand(ExecuteLastMonthCommand, CanExecuteDownloadCommand);
+            LastYearCommand = new RelayCommand(ExecuteLastYearCommand, CanExecuteDownloadCommand);
+            AllCommand = new RelayCommand(ExecuteAllCommand, CanExecuteDownloadCommand);
+
+            LoadData();
         }
 
-        private bool CanExecuteDownloadCommand() => !_isDownloading;
+        private bool CanExecuteDownloadCommand() => true;
 
-        private async void ExecuteDownloadCommand()
+        private void ExecuteAllCommand()
         {
-            _isDownloading = true;
+            SetupAxes(_minDate, _maxDate);
+        }
+
+        private void ExecuteLastMonthCommand()
+        {
+            var startDate = DateTime.Now.AddMonths(-1);
+            SetupAxes(startDate, _maxDate);
+        }
+
+        private void ExecuteLastWeekCommand()
+        {
+            var startDate = DateTime.Now.AddDays(-7);            
+            SetupAxes(startDate, _maxDate);
+        }
+
+        private void ExecuteLastYearCommand()
+        {
+            var startDate = DateTime.Now.AddYears(-1);
+            SetupAxes(startDate, _maxDate);            
+        }
+
+        private void SetupAxes(DateTime startDate, DateTime endDate)
+        {
+            Model.Axes[0].Minimum = DateTimeAxis.ToDouble(startDate);
+            Model.Axes[0].Maximum = DateTimeAxis.ToDouble(endDate);
+            Model.Axes[1].Minimum = _dataService.GetMinValue(startDate, endDate);
+            Model.Axes[1].Maximum = _dataService.GetMaxValue(startDate, endDate);
+            Model.InvalidatePlot(true);
+        }
+
+        private async void LoadData()
+        {
             Model.Series.Clear();
 
             await _dataService.LoadDataAsync();
@@ -101,28 +109,6 @@ namespace EuriborHistory.ViewModel
                     }
                     PopulateSeries(item);
                 });
-
-            _isDownloading = false;
-        }
-
-        private void SetupPlotModel()
-        {
-            var dateAxis = new DateTimeAxis
-            {
-                Position = AxisPosition.Bottom,
-                StringFormat = "MM/dd/yyyy",
-                MajorGridlineStyle = LineStyle.Solid,
-                MinorGridlineStyle = LineStyle.Dot,
-                Title = "Date"
-            };
-            var valueAxis = new LinearAxis
-            {
-                Position = AxisPosition.Left,
-                Title = "Rate"
-            };
-
-            Model.Axes.Add(dateAxis);
-            Model.Axes.Add(valueAxis);
         }
 
         private void PopulateSeries(List<DataItem> data)
@@ -132,17 +118,20 @@ namespace EuriborHistory.ViewModel
                 return;
             }
 
+            _minDate = data.Min(d => d.Date);
+            _maxDate = data.Max(d => d.Date);
+
             var oneWeekData = data.Where(d => d.Period == Enums.EuriborPeriod.OneWeek);
             var oneMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.OneMonth);
             var threeMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.ThreeMonths);
             var sixMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.SixMonths);
             var twelveMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.TwelveMonths);
 
-            var lineSeries1w = new LineSeries { Title = "1 week"};
-            var lineSeries1m = new LineSeries { Title = "1 month"};
-            var lineSeries3m = new LineSeries { Title = "3 months"};
-            var lineSeries6m = new LineSeries { Title = "6 months"};
-            var lineSeries12m = new LineSeries { Title = "12 months"};
+            var lineSeries1w = new LineSeries { Title = "1 week", StrokeThickness = 1 };
+            var lineSeries1m = new LineSeries { Title = "1 month", StrokeThickness = 1 };
+            var lineSeries3m = new LineSeries { Title = "3 months", StrokeThickness = 1 };
+            var lineSeries6m = new LineSeries { Title = "6 months", StrokeThickness = 1 };
+            var lineSeries12m = new LineSeries { Title = "12 months", StrokeThickness = 1 };
 
             foreach (var item in oneWeekData)
             {
@@ -176,6 +165,32 @@ namespace EuriborHistory.ViewModel
             Model.InvalidatePlot(true);
         }
 
+        private void SetupPlotModel()
+        {
+            var dateAxis = new DateTimeAxis
+            {
+                Key = "DateAxis",
+                Position = AxisPosition.Bottom,
+                StringFormat = "MM/dd/yyyy",
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Dot,
+                Title = "Date"
+            };
+            var valueAxis = new LinearAxis
+            {
+                Key = "RateAxis",
+                Position = AxisPosition.Left,
+                Title = "Rate"
+            };
+
+            Model.Axes.Add(dateAxis);
+            Model.Axes.Add(valueAxis);
+        }
+
+        public ICommand AllCommand { get; }
+
+        public ICommand LastMonthCommand { get; }
+
         ////public override void Cleanup()
         ////{
         ////    // Clean up if needed
@@ -183,6 +198,38 @@ namespace EuriborHistory.ViewModel
         ////    base.Cleanup();
         ////}
 
-        public ICommand DownloadCommand { get; }
+        public ICommand LastWeekCommand { get; }
+
+        public ICommand LastYearCommand { get; }
+
+        public double MaxYValue
+        {
+            get => _maxYValue;
+            set
+            {
+                _maxYValue = value;
+                RaisePropertyChanged(nameof(MaxYValue));
+            }
+        }
+
+        public double MinYValue
+        {
+            get => _minYValue;
+            set
+            {
+                _minYValue = value;
+                RaisePropertyChanged(nameof(MinYValue));
+            }
+        }
+
+        public PlotModel Model
+        {
+            get => _model;
+            set
+            {
+                _model = value;
+                RaisePropertyChanged(nameof(Model));
+            }
+        }
     }
 }

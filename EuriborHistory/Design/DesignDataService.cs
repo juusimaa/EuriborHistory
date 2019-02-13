@@ -31,12 +31,22 @@ namespace EuriborHistory.Design
             throw new NotImplementedException();
         }
 
+        public double GetMaxValue(DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
         public DateTime GetMinDate()
         {
             throw new NotImplementedException();
         }
 
         public double GetMinValue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public double GetMinValue(DateTime startDate, DateTime endDate)
         {
             throw new NotImplementedException();
         }

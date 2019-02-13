@@ -1,8 +1,6 @@
 ﻿<Window x:Class="EuriborHistory.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:oxy="http://oxyplot.org/wpf"
         Height="400"
         Width="800"
@@ -14,19 +12,37 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Skins/MainSkin.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <Style TargetType="Button">
+                <Setter Property="Width" Value="100"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid x:Name="LayoutRoot">
+    <Grid Margin="0,0,0,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>            
         </Grid.RowDefinitions>
 
-        <oxy:PlotView Grid.Row="0" Model="{Binding Model}"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
 
-        <Button Grid.Row="1" Content="Download" VerticalAlignment="Center" Width="100"
-                Command="{Binding DownloadCommand}"/>
+        <oxy:PlotView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Model="{Binding Model}"/>
+
+        <Button Grid.Row="1" Grid.Column="0" Content="Last week" 
+                Command="{Binding LastWeekCommand}"/>
+        <Button Grid.Row="1" Grid.Column="1" Content="Last month"
+                Command="{Binding LastMonthCommand}"/>
+        <Button Grid.Row="1" Grid.Column="2" Content="Last year" 
+                Command="{Binding LastYearCommand}"/>
+        <Button Grid.Row="1" Grid.Column="3" Content="All" 
+                Command="{Binding AllCommand}"/>
 
     </Grid>
 </Window>
