@@ -26,10 +26,6 @@ namespace EuriborHistory.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
-        private DateTime _maxDate;
-        private double _maxYValue;
-        private DateTime _minDate;
-        private double _minYValue;
         private PlotModel _model;
 
         /// <summary>
@@ -63,25 +59,25 @@ namespace EuriborHistory.ViewModel
 
         private void ExecuteAllCommand()
         {
-            SetupAxes(_minDate, _maxDate);
+            SetupAxes(_dataService.GetMinDate(), _dataService.GetMaxDate());
         }
 
         private void ExecuteLastMonthCommand()
         {
             var startDate = DateTime.Now.AddMonths(-1);
-            SetupAxes(startDate, _maxDate);
+            SetupAxes(startDate, _dataService.GetMaxDate());
         }
 
         private void ExecuteLastWeekCommand()
         {
             var startDate = DateTime.Now.AddDays(-7);            
-            SetupAxes(startDate, _maxDate);
+            SetupAxes(startDate, _dataService.GetMaxDate());
         }
 
         private void ExecuteLastYearCommand()
         {
             var startDate = DateTime.Now.AddYears(-1);
-            SetupAxes(startDate, _maxDate);            
+            SetupAxes(startDate, _dataService.GetMaxDate());            
         }
 
         private void SetupAxes(DateTime startDate, DateTime endDate)
@@ -117,9 +113,6 @@ namespace EuriborHistory.ViewModel
             {
                 return;
             }
-
-            _minDate = data.Min(d => d.Date);
-            _maxDate = data.Max(d => d.Date);
 
             var oneWeekData = data.Where(d => d.Period == Enums.EuriborPeriod.OneWeek);
             var oneMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.OneMonth);
@@ -201,26 +194,6 @@ namespace EuriborHistory.ViewModel
         public ICommand LastWeekCommand { get; }
 
         public ICommand LastYearCommand { get; }
-
-        public double MaxYValue
-        {
-            get => _maxYValue;
-            set
-            {
-                _maxYValue = value;
-                RaisePropertyChanged(nameof(MaxYValue));
-            }
-        }
-
-        public double MinYValue
-        {
-            get => _minYValue;
-            set
-            {
-                _minYValue = value;
-                RaisePropertyChanged(nameof(MinYValue));
-            }
-        }
 
         public PlotModel Model
         {
