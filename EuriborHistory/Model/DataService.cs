@@ -27,6 +27,7 @@ namespace EuriborHistory.Model
             "\\Euribor History";
         private readonly string[] _fileNames =
         {
+            "2010.csv",
             "2011.csv",
             "2012.csv",
             "2013.csv",
@@ -103,6 +104,11 @@ namespace EuriborHistory.Model
             // 1st item is empty or period name so start from index 1
             for(var i = 1; i < dates.Length; i++)
             {
+                if (string.IsNullOrEmpty(dates[i]))
+                {
+                    continue;
+                }
+
                 var item = new DataItem { Period = period };
 
                 if(DateTime.TryParse(dates[i], out var date))
@@ -112,8 +118,15 @@ namespace EuriborHistory.Model
 
                 if(double.TryParse(values[i], NumberStyles.Any, CultureInfo.InvariantCulture, out var d))
                 {
-                    if(d == 0) d = double.NaN;
+                    if(d == 0)
+                    {
+                        d = double.NaN;
+                    }
                     item.Value = d;
+                }
+                else
+                {
+                    item.Value = double.NaN;
                 }
                 results.Add(item);
             }
