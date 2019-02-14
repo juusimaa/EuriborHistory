@@ -4,6 +4,7 @@
 //     Copyright (c) . All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
+using EuriborHistory.Enums;
 using EuriborHistory.Model;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -57,10 +58,20 @@ namespace EuriborHistory.ViewModel
 
         private bool CanExecuteDownloadCommand() => true;
 
-        private void ExecuteAllCommand()
+        private void CreateSeries(EuriborPeriod period, IEnumerable<DataItem> data)
         {
-            SetupAxes(_dataService.GetMinDate(), _dataService.GetMaxDate());
+            var filteredData = data.Where(d => d.Period == period);
+            var series = new LineSeries { Title = period.DescriptionAttr(), StrokeThickness = 1 };
+
+            foreach(var item in filteredData)
+            {
+                series.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
+            }
+
+            Model.Series.Add(series);
         }
+
+        private void ExecuteAllCommand() => SetupAxes(_dataService.GetMinDate(), _dataService.GetMaxDate());
 
         private void ExecuteLastMonthCommand()
         {
@@ -70,23 +81,14 @@ namespace EuriborHistory.ViewModel
 
         private void ExecuteLastWeekCommand()
         {
-            var startDate = DateTime.Now.AddDays(-7);            
+            var startDate = DateTime.Now.AddDays(-7);
             SetupAxes(startDate, _dataService.GetMaxDate());
         }
 
         private void ExecuteLastYearCommand()
         {
             var startDate = DateTime.Now.AddYears(-1);
-            SetupAxes(startDate, _dataService.GetMaxDate());            
-        }
-
-        private void SetupAxes(DateTime startDate, DateTime endDate)
-        {
-            Model.Axes[0].Minimum = DateTimeAxis.ToDouble(startDate);
-            Model.Axes[0].Maximum = DateTimeAxis.ToDouble(endDate);
-            Model.Axes[1].Minimum = _dataService.GetMinValue(startDate, endDate);
-            Model.Axes[1].Maximum = _dataService.GetMaxValue(startDate, endDate);
-            Model.InvalidatePlot(true);
+            SetupAxes(startDate, _dataService.GetMaxDate());
         }
 
         private async void LoadData()
@@ -95,66 +97,39 @@ namespace EuriborHistory.ViewModel
 
             await _dataService.LoadDataAsync();
 
-            _dataService.GetData(
-                (item, error) =>
+            _dataService.GetData((item, error) =>
+            {
+                if(error != null)
                 {
-                    if (error != null)
-                    {
-                        // Report error here
-                        return;
-                    }
-                    PopulateSeries(item);
-                });
+                    // Report error here
+                    return;
+                }
+                PopulateSeries(item);
+            });
         }
 
         private void PopulateSeries(List<DataItem> data)
         {
-            if (!data.Any())
+            if(!data.Any())
             {
                 return;
             }
 
-            var oneWeekData = data.Where(d => d.Period == Enums.EuriborPeriod.OneWeek);
-            var oneMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.OneMonth);
-            var threeMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.ThreeMonths);
-            var sixMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.SixMonths);
-            var twelveMonthData = data.Where(d => d.Period == Enums.EuriborPeriod.TwelveMonths);
-
-            var lineSeries1w = new LineSeries { Title = "1 week", StrokeThickness = 1 };
-            var lineSeries1m = new LineSeries { Title = "1 month", StrokeThickness = 1 };
-            var lineSeries3m = new LineSeries { Title = "3 months", StrokeThickness = 1 };
-            var lineSeries6m = new LineSeries { Title = "6 months", StrokeThickness = 1 };
-            var lineSeries12m = new LineSeries { Title = "12 months", StrokeThickness = 1 };
-
-            foreach (var item in oneWeekData)
+            foreach(EuriborPeriod period in (EuriborPeriod[])Enum.GetValues(typeof(EuriborPeriod)))
             {
-                lineSeries1w.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
+                CreateSeries(period, data);
             }
-            foreach (var item in oneMonthData)
-            {
-                lineSeries1m.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
-            }
-            foreach (var item in threeMonthData)
-            {
-                lineSeries3m.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
-            }
-            foreach (var item in sixMonthData)
-            {
-                lineSeries6m.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
-            }
-            foreach (var item in twelveMonthData)
-            {
-                lineSeries12m.Points.Add(new DataPoint(DateTimeAxis.ToDouble(item.Date), item.Value));
-            }
-
-            Model.Series.Add(lineSeries1w);
-            Model.Series.Add(lineSeries1m);
-            Model.Series.Add(lineSeries3m);
-            Model.Series.Add(lineSeries6m);
-            Model.Series.Add(lineSeries12m);
 
             Model.Title = $"Euribor {_dataService.GetMinDate().Year} - {_dataService.GetMaxDate().Year}";
+            Model.InvalidatePlot(true);
+        }
 
+        private void SetupAxes(DateTime startDate, DateTime endDate)
+        {
+            Model.Axes[0].Minimum = DateTimeAxis.ToDouble(startDate);
+            Model.Axes[0].Maximum = DateTimeAxis.ToDouble(endDate);
+            Model.Axes[1].Minimum = _dataService.GetMinValue(startDate, endDate);
+            Model.Axes[1].Maximum = _dataService.GetMaxValue(startDate, endDate);
             Model.InvalidatePlot(true);
         }
 
