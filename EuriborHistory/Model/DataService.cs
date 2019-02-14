@@ -12,7 +12,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace EuriborHistory.Model
 {
@@ -39,64 +38,63 @@ namespace EuriborHistory.Model
             "2019.csv"
         };
 
-        private async Task DownloadFile(string filename)
+        private void DownloadFile(string filename)
         {
             if(DateTime.Now - File.GetCreationTime(Path.Combine(_downloadPath, filename)) > TimeSpan.FromDays(1))
             {
                 var webClient = new WebClient();
-                await webClient.DownloadFileTaskAsync(_urlBase + filename,
-                                                      Path.Combine(_downloadPath, filename));
+                webClient.DownloadFile(_urlBase + filename, Path.Combine(_downloadPath, filename));
             }
         }
 
-        private async Task ParseCsv(string file) => await Task.Run(() =>
-                                                    {
-                                                        using(TextFieldParser parser = new TextFieldParser(file))
-                                                        {
-                                                            parser.TextFieldType = FieldType.Delimited;
-                                                            parser.SetDelimiters(",");
+        private void ParseCsv(string file)
+        {
+            using(TextFieldParser parser = new TextFieldParser(file))
+            {
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
 
-                                                            var dates = parser.ReadFields();
+                var dates = parser.ReadFields();
 
-                                                            while(!parser.EndOfData)
-                                                            {
-                                                                var set = parser.ReadFields();
+                while(!parser.EndOfData)
+                {
+                    var set = parser.ReadFields();
 
-                                                                switch(ParsePeriod(set[0]))
-                                                                {
-                                                                    case EuriborPeriod.OneWeek:
-                                                                        _data.AddRange(ParseData(dates,
-                                                                                                 set,
-                                                                                                 EuriborPeriod.OneWeek));
-                                                                        break;
+                    switch(ParsePeriod(set[0]))
+                    {
+                        case EuriborPeriod.OneWeek:
+                            _data.AddRange(ParseData(dates,
+                                                     set,
+                                                     EuriborPeriod.OneWeek));
+                            break;
 
-                                                                    case EuriborPeriod.OneMonth:
-                                                                        _data.AddRange(ParseData(dates,
-                                                                                                 set,
-                                                                                                 EuriborPeriod.OneMonth));
-                                                                        break;
+                        case EuriborPeriod.OneMonth:
+                            _data.AddRange(ParseData(dates,
+                                                     set,
+                                                     EuriborPeriod.OneMonth));
+                            break;
 
-                                                                    case EuriborPeriod.ThreeMonths:
-                                                                        _data.AddRange(ParseData(dates,
-                                                                                                 set,
-                                                                                                 EuriborPeriod.ThreeMonths));
-                                                                        break;
+                        case EuriborPeriod.ThreeMonths:
+                            _data.AddRange(ParseData(dates,
+                                                     set,
+                                                     EuriborPeriod.ThreeMonths));
+                            break;
 
-                                                                    case EuriborPeriod.SixMonths:
-                                                                        _data.AddRange(ParseData(dates,
-                                                                                                 set,
-                                                                                                 EuriborPeriod.SixMonths));
-                                                                        break;
+                        case EuriborPeriod.SixMonths:
+                            _data.AddRange(ParseData(dates,
+                                                     set,
+                                                     EuriborPeriod.SixMonths));
+                            break;
 
-                                                                    case EuriborPeriod.TwelveMonths:
-                                                                        _data.AddRange(ParseData(dates,
-                                                                                                 set,
-                                                                                                 EuriborPeriod.TwelveMonths));
-                                                                        break;
-                                                                }
-                                                            }
-                                                        }
-                                                    });
+                        case EuriborPeriod.TwelveMonths:
+                            _data.AddRange(ParseData(dates,
+                                                     set,
+                                                     EuriborPeriod.TwelveMonths));
+                            break;
+                    }
+                }
+            }
+        }
 
         private IEnumerable<DataItem> ParseData(string[] dates, string[] values, EuriborPeriod period)
         {
@@ -167,7 +165,7 @@ namespace EuriborHistory.Model
                 .Where(d => d.Date > startDate && d.Date < endDate)
             .Min(d => d.Value);
 
-        public async Task LoadDataAsync()
+        public void LoadData()
         {
             _data.Clear();
 
@@ -178,8 +176,8 @@ namespace EuriborHistory.Model
 
             foreach(var filename in _fileNames)
             {
-                await DownloadFile(filename);
-                await ParseCsv(Path.Combine(_downloadPath, filename));
+                DownloadFile(filename);
+                ParseCsv(Path.Combine(_downloadPath, filename));
             }
         }
     }

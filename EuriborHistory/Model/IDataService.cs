@@ -6,7 +6,6 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace EuriborHistory.Model
 {
@@ -14,7 +13,7 @@ namespace EuriborHistory.Model
     {
         void GetData(Action<List<DataItem>, Exception> callback);
 
-        Task LoadDataAsync();
+        void LoadData();
 
         double GetMinValue();
 

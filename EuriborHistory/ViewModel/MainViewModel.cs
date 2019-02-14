@@ -14,6 +14,7 @@ using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace EuriborHistory.ViewModel
@@ -27,7 +28,6 @@ namespace EuriborHistory.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
-        private PlotModel _model;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -53,7 +53,7 @@ namespace EuriborHistory.ViewModel
             LastYearCommand = new RelayCommand(ExecuteLastYearCommand, CanExecuteDownloadCommand);
             AllCommand = new RelayCommand(ExecuteAllCommand, CanExecuteDownloadCommand);
 
-            LoadData();
+            Task.Run(LoadDataAsync);
         }
 
         private bool CanExecuteDownloadCommand() => true;
@@ -91,22 +91,22 @@ namespace EuriborHistory.ViewModel
             SetupAxes(startDate, _dataService.GetMaxDate());
         }
 
-        private async void LoadData()
-        {
-            Model.Series.Clear();
+        private async Task LoadDataAsync() => await Task.Run(() =>
+                                              {
+                                                  Model.Series.Clear();
 
-            await _dataService.LoadDataAsync();
+                                                  _dataService.LoadData();
 
-            _dataService.GetData((item, error) =>
-            {
-                if(error != null)
-                {
-                    // Report error here
-                    return;
-                }
-                PopulateSeries(item);
-            });
-        }
+                                                  _dataService.GetData((item, error) =>
+                                                  {
+                                                      if(error != null)
+                                                      {
+                                                          // Report error here
+                                                          return;
+                                                      }
+                                                      PopulateSeries(item);
+                                                  });
+                                              });
 
         private void PopulateSeries(List<DataItem> data)
         {
@@ -170,14 +170,6 @@ namespace EuriborHistory.ViewModel
 
         public ICommand LastYearCommand { get; }
 
-        public PlotModel Model
-        {
-            get => _model;
-            set
-            {
-                _model = value;
-                RaisePropertyChanged(nameof(Model));
-            }
-        }
+        public PlotModel Model { get; }
     }
 }

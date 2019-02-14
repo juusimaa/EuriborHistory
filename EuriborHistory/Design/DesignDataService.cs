@@ -51,6 +51,6 @@ namespace EuriborHistory.Design
             throw new NotImplementedException();
         }
 
-        public Task LoadDataAsync() => throw new NotImplementedException();
+        public void LoadData() => throw new NotImplementedException();
     }
 }
