@@ -6,6 +6,8 @@
 //-----------------------------------------------------------------------
 using EuriborHistory.Enums;
 using Microsoft.VisualBasic.FileIO;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -27,6 +29,12 @@ namespace EuriborHistory.Model
             "\\Euribor History";
         private readonly string[] _fileNames =
         {
+            "2004.xls",
+            "2005.xls",
+            "2006.xls",
+            "2007.xls",
+            "2008.xls",
+            "2009.xls",
             "2010.csv",
             "2011.csv",
             "2012.csv",
@@ -48,9 +56,81 @@ namespace EuriborHistory.Model
             }
         }
 
-        private void ParseXls(string file)
+        private void ParseXls(string filename)
         {
+            HSSFWorkbook hssfwb;
+            using (var file = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            {
+                hssfwb = new HSSFWorkbook(file);
+            }
 
+            if(hssfwb.GetSheet("Euribor") is ISheet sheet)
+            {
+                // 1st row is dates
+                var datesRow = sheet.GetRow(0);
+                var dates = new List<DateTime>();
+                foreach(var cell in datesRow.Cells)
+                {
+                    dates.Add(cell.DateCellValue);
+                }
+
+                // rest are rates
+                for(var row = 1; row <= sheet.LastRowNum; row++)
+                {
+                    var currentRow = sheet.GetRow(row);
+                    var rates = new List<double>();
+
+                    // TODO: dates and rates should have same count
+
+                    if(currentRow.Cells[0].CellType != CellType.String)
+                    {
+                        break;
+                    }
+
+                    switch(ParsePeriod(currentRow.Cells[0].StringCellValue))
+                    {
+                        case EuriborPeriod.OneWeek:
+                            ParseRow(currentRow, rates);
+                            _data.AddRange(ParseData(dates, rates, EuriborPeriod.OneWeek));
+                            break;
+
+                        case EuriborPeriod.OneMonth:
+                            ParseRow(currentRow, rates);
+                            _data.AddRange(ParseData(dates, rates, EuriborPeriod.OneMonth));
+                            break;
+
+                        case EuriborPeriod.ThreeMonths:
+                            ParseRow(currentRow, rates);
+                            _data.AddRange(ParseData(dates, rates, EuriborPeriod.ThreeMonths));
+                            break;
+
+                        case EuriborPeriod.SixMonths:
+                            ParseRow(currentRow, rates);
+                            _data.AddRange(ParseData(dates, rates, EuriborPeriod.SixMonths));
+                            break;
+
+                        case EuriborPeriod.TwelveMonths:
+                            ParseRow(currentRow, rates);
+                            _data.AddRange(ParseData(dates, rates, EuriborPeriod.TwelveMonths));
+                            break;
+                    }
+                }
+            }
+        }
+
+        private static void ParseRow(IRow r, List<double> rates)
+        {
+            foreach (var cell in r.Cells)
+            {
+                if (cell.CellType == CellType.Numeric)
+                {
+                    rates.Add(cell.NumericCellValue);
+                }
+                else
+                {
+                    rates.Add(double.NaN);
+                }
+            }
         }
 
         private void ParseCsv(string file)
@@ -100,6 +180,24 @@ namespace EuriborHistory.Model
                     }
                 }
             }
+        }
+
+        private IEnumerable<DataItem> ParseData(IEnumerable<DateTime> dates, IEnumerable<double> values, EuriborPeriod period)
+        {
+            var results = new List<DataItem>();
+
+            for (var i = 0; i < dates.Count(); i++)
+            {
+                var item = new DataItem
+                {
+                    Period = period,
+                    Date = dates.ElementAt(i),
+                    Value = values.ElementAt(i)
+                };
+                results.Add(item);
+            }
+
+            return results;
         }
 
         private IEnumerable<DataItem> ParseData(string[] dates, string[] values, EuriborPeriod period)
