@@ -117,6 +117,10 @@ namespace EuriborHistory.ViewModel
 
             foreach(EuriborPeriod period in (EuriborPeriod[])Enum.GetValues(typeof(EuriborPeriod)))
             {
+                if (period == EuriborPeriod.NotDefined)
+                {
+                    continue;
+                }
                 CreateSeries(period, data);
             }
 
