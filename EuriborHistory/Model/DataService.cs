@@ -48,6 +48,11 @@ namespace EuriborHistory.Model
             }
         }
 
+        private void ParseXls(string file)
+        {
+
+        }
+
         private void ParseCsv(string file)
         {
             using(TextFieldParser parser = new TextFieldParser(file))
@@ -190,7 +195,17 @@ namespace EuriborHistory.Model
             foreach(var filename in _fileNames)
             {
                 DownloadFile(filename);
-                ParseCsv(Path.Combine(_downloadPath, filename));
+
+                switch(Path.GetExtension(filename))
+                {
+                    case ".xls":
+                        ParseXls(Path.Combine(_downloadPath, filename));
+                        break;
+
+                    case ".csv":
+                        ParseCsv(Path.Combine(_downloadPath, filename));
+                        break;
+                }
             }
         }
     }
