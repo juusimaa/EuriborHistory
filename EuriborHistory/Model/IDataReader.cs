@@ -8,8 +8,12 @@ using System.Collections.Generic;
 
 namespace EuriborHistory.Model
 {
-    public interface IDataParser
+    public interface IDataReader
     {
-        IEnumerable<DataItem> ParseData(string filename);
+        string UrlBase { get; set; }
+
+        string DownloadPath { get; set; }
+
+        IEnumerable<DataItem> ReadFile(string[] fileNames);
     }
 }

@@ -99,12 +99,14 @@
     <Compile Include="Enums\EnumExtensions.cs" />
     <Compile Include="Enums\EuriborPeriod.cs" />
     <Compile Include="Model\DataItem.cs" />
-    <Compile Include="Model\DataParser.cs" />
+    <Compile Include="Model\DataReader.cs" />
     <Compile Include="Model\DataService.cs" />
-    <Compile Include="Model\IDataParser.cs" />
+    <Compile Include="Model\FileParsing\CsvFiles\CsvParser.cs" />
+    <Compile Include="Model\FileParsing\FileParser.cs" />
+    <Compile Include="Model\IDataReader.cs" />
     <Compile Include="Model\IDataService.cs" />
-    <Compile Include="Model\XlsData\XlsParser.cs" />
-    <Compile Include="Model\XlsData\XlsParserOld.cs" />
+    <Compile Include="Model\FileParsing\XlsFiles\XlsParser.cs" />
+    <Compile Include="Model\FileParsing\XlsFiles\XlsParserOld.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="MainWindow.xaml">
@@ -152,9 +154,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\CsvData\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
