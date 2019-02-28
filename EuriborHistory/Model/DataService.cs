@@ -18,7 +18,7 @@ namespace EuriborHistory.Model
         private const string _urlBase = @"https://www.emmi-benchmarks.eu/assets/modules/rateisblue/file_processing/publication/processed/hist_EURIBOR_";
 
         private List<DataItem> _data = new List<DataItem>();
-        private string _downloadPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString() +
+        private readonly string _downloadPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString() +
             "\\Euribor History";
         private readonly string[] _fileNames =
         {

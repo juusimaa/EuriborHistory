@@ -55,6 +55,7 @@ namespace EuriborHistory.Model
             {
                 var webClient = new WebClient();
                 webClient.DownloadFile(UrlBase + filename, Path.Combine(DownloadPath, filename));
+                webClient.Dispose();
             }
         }
 

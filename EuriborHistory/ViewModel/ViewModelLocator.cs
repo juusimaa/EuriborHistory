@@ -19,6 +19,7 @@ using EuriborHistory.Model;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
+using System;
 
 namespace EuriborHistory.ViewModel
 {
@@ -53,14 +54,14 @@ namespace EuriborHistory.ViewModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
             "CA1822:MarkMembersAsStatic",
             Justification = "This non-static member is needed for data binding purposes.")]
-        public MainViewModel Main
-=> ServiceLocator.Current.GetInstance<MainViewModel>();
+        public MainViewModel Main => ServiceLocator.Current.GetInstance<MainViewModel>();
 
         /// <summary>
         /// Cleans up all the resources.
         /// </summary>
         public static void Cleanup()
         {
+            throw new NotSupportedException();
         }
     }
 }
